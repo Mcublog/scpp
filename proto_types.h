@@ -1,6 +1,8 @@
 #ifndef PROTO_TYPES_H
 #define PROTO_TYPES_H
 
+#include <stdint.h>
+
 #include "proto_cmd_list.h"
 
 //Errors code
