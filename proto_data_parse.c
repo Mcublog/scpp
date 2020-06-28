@@ -280,12 +280,12 @@ uint32_t proto_cmd_set_size_and_end(proto_cmd_t *cmd, uint8_t *b)
 
     size = size + CL_SIZE_END_SYMB + CL_SIZE_START_STOP_SYMB + CRC32_LENGHT;
     b[0] = CL_START_SYM;
-    *((uint32_t *)&b[1]) = size;
+    memcpy((void*)&b[1], (const void*) &size, sizeof(uint32_t));
     b[5] = CL_STOP_SYM;
 
-    *((uint32_t *)&b[crc_idx]) = 0;
+    memset((void *) &b[crc_idx], 0, sizeof(uint32_t));
     crc = xcrc32(b, size - CL_SIZE_START_STOP_SYMB - CL_SIZE_END_SYMB - CRC32_LENGHT, 0xffffffff); //crc without stop symol and themself
-    *((uint32_t *)&b[crc_idx]) = crc;
+    memcpy((void*)&b[crc_idx], (const void*) &crc, sizeof(uint32_t));
 
     for (i = 0; i < CL_SIZE_END_SYMB; i++)
     {
@@ -342,7 +342,7 @@ uint32_t proto_cmd_get_size(const uint8_t *buf)
     uint32_t size = 0;
     if (proto_check_start_stop_symb(buf))
     {
-        size = *((uint32_t *)&buf[1]);
+        memcpy((void*)&size,(const void*) &buf[1], sizeof(uint32_t));
         if (size < 8192)
             return size;
     }
@@ -359,7 +359,7 @@ uint32_t proto_cmd_set_size(const uint8_t *buf)
     uint32_t size = 0;
     if (proto_check_start_stop_symb(buf))
     {
-        size = (uint32_t)buf[1];
+        memcpy((void*)&buf[1],(const void*) &size, sizeof(uint32_t));
         if (size < 8192)
             return size;
     }
