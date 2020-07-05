@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "proto_cmd_list.h"
+#include "proto_cmd_list_default.h"
 
 //Errors code
 #define CLI_CRC_ERROR   (0)//CRC ERROR
