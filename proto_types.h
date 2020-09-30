@@ -10,6 +10,10 @@
 #define CLI_OK          (1)//ALL OK
 #define CLI_CORRUPT     (2)//Packet corrupt, size is not correct
 
+#ifndef PROTO_MAX_PARAM_COUNT
+    #define PROTO_MAX_PARAM_COUNT (20)
+#endif
+
 typedef struct
 {
     uint8_t* data;//pointer to start componets
@@ -18,7 +22,7 @@ typedef struct
 
 typedef struct
 {
-    comp_t p[20];
+    comp_t p[PROTO_MAX_PARAM_COUNT];
 }proto_param_t;
 
 typedef struct
