@@ -248,7 +248,7 @@ uint32_t proto_cmd_set_size_and_end(proto_cmd_t *cmd, uint8_t *b)
 {
     uint32_t crc = 0;
     uint32_t crc_idx = 0;
-    volatile uint32_t size_pkt = 0;
+
     uint32_t num = atoi((const char *)cmd->size.data);
     uint32_t size = cmd->name.size + CL_SIZE_START_STOP_SYMB;
     uint32_t i = 0;
