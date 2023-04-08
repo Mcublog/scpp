@@ -7,10 +7,12 @@ SSYMB = '['.encode('ascii')
 ESYMB = ']'.encode('ascii')
 END_OF_MSG = '\r\n'.encode('ascii')
 
-def build_string_param(param:str) -> bytes:
+
+def build_string_param(param: str) -> bytes:
     return SSYMB + param.encode('ascii') + ESYMB
 
-def build_int_param(param:int) -> bytes:
+
+def build_int_param(param: int) -> bytes:
     return SSYMB + param.to_bytes(4, 'little') + ESYMB
 
 
@@ -27,7 +29,7 @@ xcrc32 -- binary number (uint32_t)
 
 @dataclass
 class Request:
-    NAME:ClassVar[str] = ''
+    NAME: ClassVar[str] = ''
     TYPE: ClassVar[str] = 'string'
     PARAMS: ClassVar[tuple] = ()
 
@@ -36,11 +38,33 @@ class Request:
         cmd = build_string_param(self.NAME)
         cmd_type = build_string_param(self.TYPE)
         param_number = build_string_param(str(len(self.PARAMS)))
+        params = b''
+        for p in self.PARAMS:
+            params += build_string_param(p)
         size = len(build_int_param(0) + cmd + cmd_type + param_number + crc + END_OF_MSG)
-        msg = build_int_param(size) + cmd + cmd_type + param_number
+        if params:
+            size += len(params)
+        msg = build_int_param(size) + cmd + cmd_type + param_number + params
         crc = Xcrc32.calc(msg)
         return msg + build_int_param(crc) + END_OF_MSG
 
+
 @dataclass
 class GetName(Request):
-    NAME:ClassVar[str] = "GET_NAME"
+    NAME: ClassVar[str] = "GET_NAME"
+
+
+@dataclass
+class GetFlashData(Request):
+    NAME: ClassVar[str] = "GET_FLASH_DATA"
+
+    Page: int
+    Block: int
+    Plane: int
+
+    def __post_init__(self):
+        self.PARAMS = tuple([  # type: ignore
+            str(self.Page),
+            str(self.Block),
+            str(self.Page)
+        ])

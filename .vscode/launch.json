@@ -5,10 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Current File",
+            "name": "Python: Console",
             "type": "python",
             "request": "launch",
-            "program": "${file}",
+            "program": "${workspaceRoot}/console/cli.py",
+            "args": [
+                "-p",
+                "COM3"
+            ],
             "console": "integratedTerminal",
             "justMyCode": true,
             "env": {

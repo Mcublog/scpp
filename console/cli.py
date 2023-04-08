@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 import argparse
 import logging
-from dataclasses import dataclass
-from typing import ClassVar
 
 import serial
 import serial.tools.list_ports
@@ -13,7 +11,7 @@ from prompt_toolkit.completion import WordCompleter
 from prompt_toolkit.patch_stdout import patch_stdout
 from pylogus import logger_init
 
-from console.commands import GetName
+from console.commands import GetFlashData, GetName
 from console.version import VERSION
 from console.xcrc32 import Xcrc32
 
@@ -35,6 +33,7 @@ def main():
                         help=f'Target port name (/dev/ttyACM0)',
                         default='/dev/ttyACM0')
 
+    args = parser.parse_args()
     data = bytes([0x11, 0x22, 0x33, 0x44])
     log.info(f"0x{Xcrc32.calc(data):x}")
     log.info(f"Available ports:")
@@ -43,9 +42,11 @@ def main():
     msg = GetName().build()
     log.info(f"tx: {msg}")
 
-    port = 'COM3'
+    msg_bin = GetFlashData(0, 1, 0).build()
+
+    port = args.port
     with serial.Serial(port, timeout=0.5) as ser:
-        ser.write(msg)
+        ser.write(msg_bin)
         rx = ser.read(8192)
         log.info(f"rx: {rx}")
 
