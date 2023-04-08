@@ -42,7 +42,7 @@ def main():
     msg = GetName().build()
     log.info(f"tx: {msg}")
 
-    msg_bin = GetFlashData(0, 1, 0).build()
+    msg_bin = GetFlashData(0, 0, 0).build()
 
     port = args.port
     with serial.Serial(port, timeout=0.5) as ser:
