@@ -4,5 +4,6 @@ build>=0.10.0
 pyserial>=3.5
 prompt_toolkit>=3
 colorama>=0.4.6
+crc>=4.1.0
 repackage
 pytest
