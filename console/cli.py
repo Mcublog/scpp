@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 import argparse
+import ctypes
 import logging
 
 import serial
 import serial.tools.list_ports
 from colorama import Fore as Clr
-from prompt_toolkit import PromptSession
-from prompt_toolkit.auto_suggest import AutoSuggestFromHistory
-from prompt_toolkit.completion import WordCompleter
-from prompt_toolkit.patch_stdout import patch_stdout
 from pylogus import logger_init
 
 from console.commands import GetFlashData, GetName
+from console.logger_data_structures import (AxesRaw_t, extract_binary_data,
+                                            mem_mngr_h_t)
 from console.version import VERSION
 from console.xcrc32 import Xcrc32
 
@@ -23,6 +22,7 @@ DESCRIPTION = f'SCPP Console {Clr.GREEN}v{VERSION}{Clr.RESET}'
 def print_port_list() -> None:
     for port in serial.tools.list_ports.comports():
         print(port)
+
 
 def main():
     parser = argparse.ArgumentParser(prog='console', description=f"{DESCRIPTION}")
@@ -49,7 +49,22 @@ def main():
             ser.write(msg)
             if not (rx := ser.read(8192)):
                 break
-            log.info(f"rx: {rx}")
+            if not (data := extract_binary_data(rx)):
+                continue
+            if len(data) < ctypes.sizeof(mem_mngr_h_t):
+                log.info(f"rx: {rx}")
+                continue
+            h = mem_mngr_h_t.from_buffer_copy(data)
+            # ACC report type
+            if h.type == 2:
+                report_buffer = data[ctypes.sizeof(mem_mngr_h_t):]
+                log.info(
+                    f'type: {h.type} part: {h.part} dsize: {h.dsize} crc32: {h.crc32:#x}')
+                for i in range(0, h.dsize * ctypes.sizeof(AxesRaw_t),
+                               ctypes.sizeof(AxesRaw_t)):
+                    report = AxesRaw_t.from_buffer_copy(report_buffer, i)
+                    log.info(f'nbr: {int(i/ctypes.sizeof(AxesRaw_t) + 1):04d} {report}')
+                    # log.info(f"rx: {rx}")
 
 
 if __name__ == '__main__':
