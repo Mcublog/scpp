@@ -24,7 +24,6 @@ def print_port_list() -> None:
     for port in serial.tools.list_ports.comports():
         print(port)
 
-
 def main():
     parser = argparse.ArgumentParser(prog='console', description=f"{DESCRIPTION}")
     parser.add_argument(f'-p',
@@ -42,13 +41,15 @@ def main():
     msg = GetName().build()
     log.info(f"tx: {msg}")
 
-    msg_bin = GetFlashData(0, 0, 0).build()
-
     port = args.port
     with serial.Serial(port, timeout=0.5) as ser:
-        ser.write(msg_bin)
-        rx = ser.read(8192)
-        log.info(f"rx: {rx}")
+        for i in range(10):
+            msg = GetFlashData(i, 0, 0).build()
+            # log.info(f"tx: {msg}")
+            ser.write(msg)
+            if not (rx := ser.read(8192)):
+                break
+            log.info(f"rx: {rx}")
 
 
 if __name__ == '__main__':

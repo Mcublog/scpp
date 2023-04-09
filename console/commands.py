@@ -1,5 +1,4 @@
-from dataclasses import dataclass
-from typing import ClassVar
+from dataclasses import dataclass, field
 
 from console.xcrc32 import Xcrc32
 
@@ -29,17 +28,17 @@ xcrc32 -- binary number (uint32_t)
 
 @dataclass
 class Request:
-    NAME: ClassVar[str] = ''
-    TYPE: ClassVar[str] = 'string'
-    PARAMS: ClassVar[tuple] = ()
+    name: str = field(init=False, default='No_name')
+    data_type: str = field(init=False, default='string')
+    params: tuple = field(init=False, default_factory=tuple)
 
     def build(self) -> bytes:
         crc = build_int_param(0)
-        cmd = build_string_param(self.NAME)
-        cmd_type = build_string_param(self.TYPE)
-        param_number = build_string_param(str(len(self.PARAMS)))
+        cmd = build_string_param(self.name)
+        cmd_type = build_string_param(self.data_type)
+        param_number = build_string_param(str(len(self.params)))
         params = b''
-        for p in self.PARAMS:
+        for p in self.params:
             params += build_string_param(p)
         size = len(build_int_param(0) + cmd + cmd_type + param_number + crc + END_OF_MSG)
         if params:
@@ -51,20 +50,22 @@ class Request:
 
 @dataclass
 class GetName(Request):
-    NAME: ClassVar[str] = "GET_NAME"
+    name: str = "GET_NAME"
 
 
 @dataclass
 class GetFlashData(Request):
-    NAME: ClassVar[str] = "GET_FLASH_DATA"
+    name: str = field(init=False, default="GET_FLASH_DATA")
 
-    Page: int
-    Block: int
-    Plane: int
+    Page: int = 0
+    Block: int = 0
+    Plane: int =0
+
 
     def __post_init__(self):
-        self.PARAMS = tuple([  # type: ignore
+        self.params = (
             str(self.Page),
             str(self.Block),
-            str(self.Page)
-        ])
+            str(self.Plane)
+        )
+
