@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import ctypes
 from ctypes import Structure, c_int16, c_uint16, c_uint32
 
@@ -63,13 +65,13 @@ def main():
     data = extract_binary_data(TEST_FLASH_DATA_ACK_ACC_MORE_SIZE)
     # print(data)
     header = data[:ctypes.sizeof(mem_mngr_h_t)]
-    h = mem_mngr_h_t.from_buffer_copy(header)
+    h = mem_mngr_h_t.from_buffer_copy(header) # type: ignore
     report_buffer = data[ctypes.sizeof(mem_mngr_h_t):]
     # print(h)
     print(f'type: {h.type} part: {h.part} dsize: {h.dsize} crc32: {h.crc32:#x}')
     # print(report)
     for i in range(0, h.dsize * ctypes.sizeof(AxesRaw_t), ctypes.sizeof(AxesRaw_t)):
-        report = AxesRaw_t.from_buffer_copy(report_buffer, i)
+        report = AxesRaw_t.from_buffer_copy(report_buffer, i) # type: ignore
         print(f'nbr: {int(i/ctypes.sizeof(AxesRaw_t) + 1):04d} {report}')
 
 
