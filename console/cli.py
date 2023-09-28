@@ -1,18 +1,16 @@
 #!/usr/bin/env python3
+
 import argparse
-import ctypes
 import logging
 
 import serial
 import serial.tools.list_ports
 from colorama import Fore as Clr
-from pylogus import logger_init
-
 from console.commands import GetFlashData, GetName
-from console.logger_data_structures import (AxesRaw_t, extract_binary_data,
-                                            mem_mngr_h_t)
+from console.logger_data_structures import AxesRaw_t, extract_binary_data, mem_mngr_h_t
 from console.version import VERSION
 from console.xcrc32 import Xcrc32
+from pylogus import logger_init
 
 log = logger_init(__name__, logging.DEBUG)
 
@@ -42,29 +40,31 @@ def main():
     log.info(f"tx: {msg}")
 
     port = args.port
+
     with serial.Serial(port, timeout=0.5) as ser:
-        for i in range(10):
-            msg = GetFlashData(i, 0, 0).build()
+        for _ in range(10):
+            # msg = GetFlashData(i, 0, 0).build()
             # log.info(f"tx: {msg}")
             ser.write(msg)
             if not (rx := ser.read(8192)):
                 break
-            if not (data := extract_binary_data(rx)):
-                continue
-            if len(data) < ctypes.sizeof(mem_mngr_h_t):
-                log.info(f"rx: {rx}")
-                continue
-            h = mem_mngr_h_t.from_buffer_copy(data)
-            # ACC report type
-            if h.type == 2:
-                report_buffer = data[ctypes.sizeof(mem_mngr_h_t):]
-                log.info(
-                    f'type: {h.type} part: {h.part} dsize: {h.dsize} crc32: {h.crc32:#x}')
-                for i in range(0, h.dsize * ctypes.sizeof(AxesRaw_t),
-                               ctypes.sizeof(AxesRaw_t)):
-                    report = AxesRaw_t.from_buffer_copy(report_buffer, i)
-                    log.info(f'nbr: {int(i/ctypes.sizeof(AxesRaw_t) + 1):04d} {report}')
-                    # log.info(f"rx: {rx}")
+            log.info(f"rx: {rx}")
+            # if not (data := extract_binary_data(rx)):
+            #     continue
+            # if len(data) < ctypes.sizeof(mem_mngr_h_t):
+            #     log.info(f"rx: {rx}")
+            #     continue
+            # h = mem_mngr_h_t.from_buffer_copy(data)
+            # # ACC report type
+            # if h.type == 2:
+            #     report_buffer = data[ctypes.sizeof(mem_mngr_h_t):]
+            #     log.info(
+            #         f'type: {h.type} part: {h.part} dsize: {h.dsize} crc32: {h.crc32:#x}')
+            #     for i in range(0, h.dsize * ctypes.sizeof(AxesRaw_t),
+            #                    ctypes.sizeof(AxesRaw_t)):
+            #         report = AxesRaw_t.from_buffer_copy(report_buffer, i)
+            #         log.info(f'nbr: {int(i/ctypes.sizeof(AxesRaw_t) + 1):04d} {report}')
+            # log.info(f"rx: {rx}")
 
 
 if __name__ == '__main__':
