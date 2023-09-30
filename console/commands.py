@@ -78,3 +78,7 @@ class GetConfig(Request):
 @dataclass
 class GetTime(Request):
     name: str = "GET_TIME"
+
+@dataclass
+class GetSensorData(Request):
+    name: str = "GET_SENSOR_DATA"

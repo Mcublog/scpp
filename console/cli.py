@@ -6,7 +6,7 @@ import logging
 import serial
 import serial.tools.list_ports
 from colorama import Fore as Clr
-from console.commands import GetConfig, GetFlashData, GetName, GetTime
+from console.commands import GetConfig, GetFlashData, GetName, GetSensorData, GetTime
 from console.logger_data_structures import AxesRaw_t, extract_binary_data, mem_mngr_h_t
 from console.version import VERSION
 from console.xcrc32 import Xcrc32
@@ -41,7 +41,7 @@ def main():
 
     with serial.Serial(port, timeout=0.5) as ser:
         for msg in (GetName().build(), GetConfig().build(),
-                    GetTime().build()):
+                    GetTime().build(), GetSensorData().build()):
             log.info(f"tx: {msg}")
             ser.write(msg)
             if not (rx := ser.read(8192)):
