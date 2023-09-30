@@ -8,8 +8,9 @@
  * @copyright KS2 Copyright (c) 2023
  *
  */
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "crc32.h"
 
