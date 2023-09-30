@@ -69,3 +69,12 @@ class GetFlashData(Request):
             str(self.Plane)
         )
 
+
+@dataclass
+class GetConfig(Request):
+    name: str = "GET_CFG"
+
+
+@dataclass
+class GetTime(Request):
+    name: str = "GET_TIME"

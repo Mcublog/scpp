@@ -6,7 +6,7 @@ import logging
 import serial
 import serial.tools.list_ports
 from colorama import Fore as Clr
-from console.commands import GetFlashData, GetName
+from console.commands import GetConfig, GetFlashData, GetName, GetTime
 from console.logger_data_structures import AxesRaw_t, extract_binary_data, mem_mngr_h_t
 from console.version import VERSION
 from console.xcrc32 import Xcrc32
@@ -36,13 +36,22 @@ def main():
     log.info(f"Available ports:")
     print_port_list()
     log.info(f"-----------------")
-    msg = GetName().build()
-    log.info(f"tx: {msg}")
 
     port = args.port
 
     with serial.Serial(port, timeout=0.5) as ser:
-        for _ in range(10):
+        for msg in (GetName().build(), GetConfig().build(),
+                    GetTime().build()):
+            log.info(f"tx: {msg}")
+            ser.write(msg)
+            if not (rx := ser.read(8192)):
+                break
+            log.info(f"rx: {rx}")
+
+    return
+
+    with serial.Serial(port, timeout=0.5) as ser:
+        for _ in range(1):
             # msg = GetFlashData(i, 0, 0).build()
             # log.info(f"tx: {msg}")
             ser.write(msg)
